@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/PedroMAdorno4/Desafio/pkg/auth"
+	"github.com/PedroMAdorno4/Desafio/pkg/config"
 	"github.com/PedroMAdorno4/Desafio/pkg/create"
 	"github.com/PedroMAdorno4/Desafio/pkg/delete"
 	"github.com/PedroMAdorno4/Desafio/pkg/http/rest"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+	config.SetEnv()
+
 	st, _ := mongodb.NewStorage()
 
 	auther := auth.NewService(st)
@@ -26,7 +29,7 @@ func main() {
 
 	router := rest.Handler(auther, creater, reader, updater, deleter)
 
-	fmt.Println("Listening on port 4444")
-	log.Fatal(http.ListenAndServe(":4444", router))
+	fmt.Println("Listening on port", config.Env.Server.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Env.Server.Port), router))
 
 }

@@ -27,16 +27,21 @@ func Handler(a auth.Service, c create.Service, r read.Service, u update.Service,
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
 
 	// router.Path("/player").Queries("game", "{id}").HandlerFunc(playerPage)
-	// router.HandleFunc("/API/auth", createToken(a, r)).Methods("POST", "OPTIONS")
 	// router.HandleFunc("/API/parser/mediaResources", getMediaResources(p)).Methods("GET", "OPTIONS")
 	// router.HandleFunc("/API/user/get", getUser(r)).Methods("GET")
 	// router.Path("/API/act/get").Queries("act", "{id}").HandlerFunc(getAct(r)).Methods("GET", "OPTIONS")
 	// router.HandleFunc("/API/media/icons/upload", uploadIcons(a)).Methods("POST")
 
+	router.HandleFunc("/API/auth", createToken(a, r)).Methods("POST", "OPTIONS")
 	router.HandleFunc("/API/user/create", createUser(c)).Methods("POST")
 	router.HandleFunc("/API/user/get", getUser(r)).Methods("GET")
 	router.HandleFunc("/API/user/update", updateUser(u)).Methods("POST")
 	router.HandleFunc("/API/user/delete", deleteUser(d)).Methods("POST")
+
+	router.HandleFunc("/API/event/create", createEvent(c)).Methods("POST")
+	router.HandleFunc("/API/event/get", getEvent(r)).Methods("GET")
+	router.HandleFunc("/API/event/update", updateEvent(u)).Methods("POST")
+	router.HandleFunc("/API/event/delete", deleteEvent(d)).Methods("POST")
 
 	return router
 }
@@ -243,5 +248,90 @@ func deleteUser(s delete.Service) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		json.NewEncoder(w).Encode("Usuario excluido com sucesso")
+	}
+}
+
+//Event CRUD \\
+func createEvent(s create.Service) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var eventInfo create.Event
+		err := json.NewDecoder(r.Body).Decode(&eventInfo)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		s.CreateEvent(eventInfo)
+
+		json.NewEncoder(w).Encode("Evento criado com sucesso")
+	}
+}
+
+func getEvent(s read.Service) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var id primitive.ObjectID
+		err := json.NewDecoder(r.Body).Decode(&id)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		event, err := s.GetEvent(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode(event)
+	}
+}
+
+func updateEvent(s update.Service) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var event update.Event
+		err := json.NewDecoder(r.Body).Decode(&event)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = s.UpdateEvent(event)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode("Evento atualizado com sucesso")
+	}
+}
+
+func deleteEvent(s delete.Service) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var id primitive.ObjectID
+		err := json.NewDecoder(r.Body).Decode(&id)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = s.DeleteEvent(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode("Evento excluido com sucesso")
 	}
 }

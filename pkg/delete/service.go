@@ -7,14 +7,16 @@ import (
 )
 
 var ErrUserNotFound = errors.New("User was not found")
-var ErrGroupNotFound = errors.New("Group was not found")
+var ErrEventNotFound = errors.New("Event was not found")
 
 type Service interface {
 	DeleteUser(primitive.ObjectID) error
+	DeleteEvent(primitive.ObjectID) error
 }
 
 type Repository interface {
 	DeleteUser(primitive.ObjectID) error
+	DeleteEvent(primitive.ObjectID) error
 }
 
 type service struct {
@@ -27,4 +29,8 @@ func NewService(r Repository) Service {
 
 func (s *service) DeleteUser(id primitive.ObjectID) error {
 	return s.r.DeleteUser(id)
+}
+
+func (s *service) DeleteEvent(id primitive.ObjectID) error {
+	return s.r.DeleteEvent(id)
 }

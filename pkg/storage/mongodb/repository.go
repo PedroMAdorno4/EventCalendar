@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/PedroMAdorno4/Desafio/pkg/auth"
+	"github.com/PedroMAdorno4/Desafio/pkg/config"
 	"github.com/PedroMAdorno4/Desafio/pkg/create"
+	"github.com/PedroMAdorno4/Desafio/pkg/delete"
 	"github.com/PedroMAdorno4/Desafio/pkg/http/rest"
 	"github.com/PedroMAdorno4/Desafio/pkg/read"
 	"github.com/PedroMAdorno4/Desafio/pkg/update"
@@ -41,7 +43,7 @@ func NewStorage() (*Storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		"mongodb+srv://api:rOhWJ3WIwrGoKKyf@cluster0.ssffs.mongodb.net/calendar?retryWrites=true&w=majority",
+		fmt.Sprintf("mongodb+srv://%s:%s@cluster0.ssffs.mongodb.net/calendar?retryWrites=true&w=majority", config.Env.Database.User, config.Env.Database.Password),
 	))
 	if err != nil {
 		log.Fatal(err)
@@ -103,10 +105,32 @@ func (st *Storage) CreateUser(u create.User) (primitive.ObjectID, error) {
 	return result.InsertedID.(primitive.ObjectID), err
 }
 
+func (st *Storage) CreateEvent(e create.Event) (primitive.ObjectID, error) {
+	coll := st.db.Collection(collEvents)
+
+	result, err := coll.InsertOne(ctx, e)
+	if err != nil {
+		return primitive.NilObjectID, create.ErrEventOverlap
+	}
+	return result.InsertedID.(primitive.ObjectID), err
+}
+
 //For delete service
 func (st *Storage) DeleteUser(id primitive.ObjectID) error {
 	coll := st.db.Collection(collUsers)
 	_, err := coll.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return delete.ErrUserNotFound
+	}
+	return err
+}
+
+func (st *Storage) DeleteEvent(id primitive.ObjectID) error {
+	coll := st.db.Collection(collEvents)
+	_, err := coll.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return delete.ErrEventNotFound
+	}
 	return err
 }
 
@@ -128,6 +152,19 @@ func (st *Storage) GetIDByUsername(username string) (primitive.ObjectID, error) 
 	result := coll.FindOne(ctx, bson.M{"username": username})
 	err := result.Decode(&user)
 	return user.ID, err
+}
+
+func (st *Storage) GetEvent(id primitive.ObjectID) (read.Event, error) {
+	coll := st.db.Collection(collEvents)
+	var event read.Event
+
+	result := coll.FindOne(ctx, bson.M{"_id": id})
+	err := result.Decode(&event)
+	if err != nil {
+		err = read.ErrEventNotFound
+	}
+	return event, err
+
 }
 
 //For update service
@@ -158,6 +195,18 @@ func (st *Storage) UpdateUser(u update.User) error {
 				return err
 			}
 		}
+	}
+
+	return nil
+}
+
+func (st *Storage) UpdateEvent(e update.Event) error {
+	coll := st.db.Collection(collEvents)
+
+	// fmt.Println(g)
+	_, err := coll.ReplaceOne(ctx, bson.M{"_id": e.ID}, e)
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -7,10 +7,11 @@ import (
 )
 
 var ErrUserDuplicate = errors.New("Username already exists")
-var ErrGroupDuplicate = errors.New("Group already exists")
+var ErrEventOverlap = errors.New("Events are overlapping")
 
 type Service interface {
 	CreateUser(User) (primitive.ObjectID, error)
+	CreateEvent(Event) (primitive.ObjectID, error)
 	// CreateGroup(Group) error
 	// CreateGame(Game) (*mongo.InsertOneResult, error)
 	// CreateAct(Act) error
@@ -19,6 +20,7 @@ type Service interface {
 
 type Repository interface {
 	CreateUser(User) (primitive.ObjectID, error)
+	CreateEvent(Event) (primitive.ObjectID, error)
 	// CreateGroup(Group) error
 	// CreateGame(Game) (*mongo.InsertOneResult, error)
 	// CreateAct(Act) error
@@ -42,35 +44,11 @@ func (s *service) CreateUser(u User) (primitive.ObjectID, error) {
 	return id, err
 }
 
-//TODO: check error
-/*
-func (s *service) CreateGroup(g Group) error {
-	return s.r.CreateGroup(g)
-}
-
-func (s *service) CreateGame(g Game) (*mongo.InsertOneResult, error) {
-	result, err := s.r.CreateGame(g)
-	if err != nil {
-		return nil, err
-	}
-	return result, err
-}
-
-func (s *service) CreateAct(a Act) error {
-	err := s.r.CreateAct(a)
-	return err
-}
-
-func (s *service) CreateScenes(g Game) error {
+func (s *service) CreateEvent(e Event) (primitive.ObjectID, error) {
 	var err error
-	for _, a := range g.Acts {
-		for _, scene := range a.Scenes {
-			err := s.r.CreateScene(scene)
-			if err != nil {
-				return err
-			}
-		}
+	id, err := s.r.CreateEvent(e)
+	if err != nil {
+		return id, err
 	}
-	return err
+	return id, err
 }
-*/
