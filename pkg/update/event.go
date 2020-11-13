@@ -9,7 +9,7 @@ type Event struct {
 	OwnerID     primitive.ObjectID   `json:"ownerID,omitempty" bson:"ownerID,omitempty"`
 	Guests      []primitive.ObjectID `json:"guests,omitempty" bson:"guests,omitempty"`
 	Title       string               `json:"title" bson:"title"`
-	Description string               `json:"description" bson:"description"`
+	Description string               `json:"desc" bson:"desc"`
 	StartDate   int64                `json:"start" bson:"start"`
 	EndDate     int64                `json:"end" bson:"end"`
 	// Permissions auth.Permission    `json:"permissions" bson:"permissions"`

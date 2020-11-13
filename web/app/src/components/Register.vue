@@ -3,11 +3,11 @@
 		<h1 class="mb-4"> Cadastro </h1>
 		<b-container fluid>
 			<b-row>
-					<b-form class="w-100" @submit.prevent="submitLogin">
+					<b-form class="w-100" @submit.prevent="submitData">
 						<b-form-group
-							id="input-group-3"
+							id="input-group-1"
 							label="Nome de usuário:"
-							label-for="input-3"
+							label-for="input-1"
 							label-class="text-left"
 						>
 							<b-form-input
@@ -19,14 +19,14 @@
 							></b-form-input>
 						</b-form-group>
 							<b-form-group
-								id="input-group-3"
+								id="input-group-2"
 								label="Nome:"
-								label-for="input-3"
+								label-for="input-2"
 								label-class="text-left"
 							>
 							<div class="d-flex justify-content-around">
 								<b-form-input
-									id="input-1"
+									id="input-2"
 									class="mr-auto"
 									style="width:45%"
 									v-model="form.firstname"
@@ -35,7 +35,7 @@
 									placeholder="Primeiro nome"
 								></b-form-input>
 								<b-form-input
-									id="input-2"
+									id="input-3"
 									style="width:45%"
 									v-model="form.lastname"
 									type="text"
@@ -61,13 +61,13 @@
 						</b-form-group>
 
 						<b-form-group
-							id="input-group-4"
+							id="input-group-5"
 							label="Confirme a senha:"
-							label-for="input-4"
+							label-for="input-5"
 							label-class="text-left"
 						>
 							<b-form-input
-								id="input-4"
+								id="input-5"
 								v-model="form.passwordConfirmation"
 								type="password"
 								required
@@ -123,6 +123,30 @@ export default {
 				password: this.form.password
 			};
 
+			fetch("/backend/API/user/create", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(userInfo)
+			})
+				.then(response => {
+					return response;
+				})
+				.then(response => {
+					if(response.status === 200) {
+						this.login();
+					} else {
+						this.registerStatus = 0;
+					}
+				})
+		},
+		login() {
+			const userInfo = {
+				username: this.form.username,
+				password: this.form.password
+			};
+
 			fetch("/backend/API/auth", {
 				method: "POST",
 				headers: {
@@ -137,32 +161,21 @@ export default {
 					this.setToken(token);
 					this.registerStatus = 0;
 					if (this.form.rememberMe == "remember") {
-						this.$cookies.set("token", token, "30d", "/lepi", "lifes.dc.ufscar.br", true, "Strict")
-						// this.$cookies.set("token", token, "30d", "", "localhost", true, "Strict")
+						this.$cookies.set("token", token, "30d", "", "localhost", true, "Strict")
 					}
 					if (token !== "") {
 						this.$router.push({
-							name: "Dashboard",
-							query: { redirect: "/dashboard" }
+							name: "Eventos",
+							query: { redirect: "/events" }
 						});
 					}
 				});
 		},
-		checkCookie() {
-			if (this.$cookies.isKey("token")) {
-				this.setToken(this.$cookies.get("token"));
-				this.$router.push({
-					name: "Dashboard",
-					query: { redirect: "/dashboard" }
-				});
-			}
-		}
 	},
 	computed: {
 		...mapState(["token"])
 	},
 	mounted() {
-		this.checkCookie();
 	}
 };
 </script>

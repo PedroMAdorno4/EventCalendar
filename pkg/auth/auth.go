@@ -11,7 +11,7 @@ import (
 var JwtAuth = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//TODO: remove api/game/get and properly pass the authorization header through the iframe in the frontend
-		notAuth := []string{"/API/auth", "/static/js/"}
+		notAuth := []string{"/API/auth", "/API/user/create", "/static/js/"}
 		requestPath := r.URL.Path
 
 		for _, v := range notAuth {

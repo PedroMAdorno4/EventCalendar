@@ -167,6 +167,30 @@ func (st *Storage) GetEvent(id primitive.ObjectID) (read.Event, error) {
 
 }
 
+func (st *Storage) GetEventsByOwner(id primitive.ObjectID) ([]read.Event, error) {
+	coll := st.db.Collection(collEvents)
+	var events []read.Event
+
+	cur, err := coll.Find(ctx, bson.M{"ownerID": id})
+	defer cur.Close(ctx)
+
+	for cur.Next(ctx) {
+		var result read.Event
+		err = cur.Decode(&result)
+		if err != nil {
+			return nil, err
+		}
+
+		events = append(events, result)
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	return events, err
+
+}
+
 //For update service
 func (st *Storage) UpdateUser(u update.User) error {
 	coll := st.db.Collection(collUsers)

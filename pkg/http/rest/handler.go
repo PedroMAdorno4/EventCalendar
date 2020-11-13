@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"net/http"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -40,6 +41,7 @@ func Handler(a auth.Service, c create.Service, r read.Service, u update.Service,
 
 	router.HandleFunc("/API/event/create", createEvent(c)).Methods("POST")
 	router.HandleFunc("/API/event/get", getEvent(r)).Methods("GET")
+	router.HandleFunc("/API/event/getByOwner", getEventsByOwner(r)).Methods("GET")
 	router.HandleFunc("/API/event/update", updateEvent(u)).Methods("POST")
 	router.HandleFunc("/API/event/delete", deleteEvent(d)).Methods("POST")
 
@@ -165,6 +167,10 @@ func createUser(s create.Service) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		insertedID, err := s.CreateUser(userInfo)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotAcceptable)
+			return
+		}
 		/*var userGroup create.Group
 
 		userGroup.OwnerID = insertedID
@@ -256,17 +262,30 @@ func createEvent(s create.Service) func(w http.ResponseWriter, r *http.Request) 
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		var eventInfo create.Event
-		err := json.NewDecoder(r.Body).Decode(&eventInfo)
+		var id primitive.ObjectID
+		id, err := primitive.ObjectIDFromHex(strings.Trim(r.Header.Get("_id"), "\""))
 		defer r.Body.Close()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		s.CreateEvent(eventInfo)
+		var eventInfo create.Event
+		err = json.NewDecoder(r.Body).Decode(&eventInfo)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-		json.NewEncoder(w).Encode("Evento criado com sucesso")
+		eventInfo.OwnerID = id
+		insId, err := s.CreateEvent(eventInfo)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		json.NewEncoder(w).Encode(insId)
 	}
 }
 
@@ -289,6 +308,28 @@ func getEvent(s read.Service) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		json.NewEncoder(w).Encode(event)
+	}
+}
+
+func getEventsByOwner(s read.Service) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		var id primitive.ObjectID
+		id, err := primitive.ObjectIDFromHex(strings.Trim(r.Header.Get("_id"), "\""))
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		events, err := s.GetEventsByOwner(id)
+		if err != nil {
+			http.Error(w, "The event you requested does not exist", http.StatusNotFound)
+			return
+		}
+
+		json.NewEncoder(w).Encode(events)
 	}
 }
 
@@ -319,7 +360,7 @@ func deleteEvent(s delete.Service) func(w http.ResponseWriter, r *http.Request) 
 		w.Header().Set("Content-Type", "application/json")
 
 		var id primitive.ObjectID
-		err := json.NewDecoder(r.Body).Decode(&id)
+		id, err := primitive.ObjectIDFromHex(strings.Trim(r.Header.Get("_id"), "\""))
 		defer r.Body.Close()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

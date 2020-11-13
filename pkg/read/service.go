@@ -15,12 +15,14 @@ type Service interface {
 	GetUser(primitive.ObjectID) (User, error)
 	GetIDByUsername(Username string) (primitive.ObjectID, error)
 	GetEvent(primitive.ObjectID) (Event, error)
+	GetEventsByOwner(primitive.ObjectID) ([]Event, error)
 }
 
 type Repository interface {
 	GetUser(primitive.ObjectID) (User, error)
 	GetIDByUsername(Username string) (primitive.ObjectID, error)
 	GetEvent(primitive.ObjectID) (Event, error)
+	GetEventsByOwner(primitive.ObjectID) ([]Event, error)
 }
 
 type service struct {
@@ -41,4 +43,8 @@ func (s *service) GetIDByUsername(username string) (primitive.ObjectID, error) {
 
 func (s *service) GetEvent(id primitive.ObjectID) (Event, error) {
 	return s.r.GetEvent(id)
+}
+
+func (s *service) GetEventsByOwner(id primitive.ObjectID) ([]Event, error) {
+	return s.r.GetEventsByOwner(id)
 }

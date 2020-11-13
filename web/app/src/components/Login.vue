@@ -5,9 +5,9 @@
 			<b-row align-h="center">
 					<b-form class="w-100" @submit.prevent="submitLogin">
 						<b-form-group
-							id="input-group-3"
+							id="input-group-1"
 							label="Nome de usuario:"
-							label-for="input-3"
+							label-for="input-1"
 							label-class="text-left"
 						>
 							<b-form-input
@@ -20,13 +20,13 @@
 						</b-form-group>
 
 						<b-form-group
-							id="input-group-4"
+							id="input-group-2"
 							label="Senha:"
-							label-for="input-4"
+							label-for="input-2"
 							label-class="text-left"
 						>
 							<b-form-input
-								id="input-4"
+								id="input-2"
 								v-model="form.password"
 								type="password"
 								required
@@ -104,13 +104,12 @@ export default {
 					this.setToken(token);
 					this.loginStatus = 0;
 					if (this.form.rememberMe == "remember") {
-						this.$cookies.set("token", token, "30d", "/lepi", "lifes.dc.ufscar.br", true, "Strict")
-						// this.$cookies.set("token", token, "30d", "", "localhost", true, "Strict")
+						this.$cookies.set("token", token, "30d", "", "localhost", true, "Strict")
 					}
 					if (token !== "") {
 						this.$router.push({
-							name: "Dashboard",
-							query: { redirect: "/dashboard" }
+							name: "Eventos",
+							query: { redirect: "/events" }
 						});
 					}
 				});
@@ -119,8 +118,8 @@ export default {
 			if (this.$cookies.isKey("token")) {
 				this.setToken(this.$cookies.get("token"));
 				this.$router.push({
-					name: "Dashboard",
-					query: { redirect: "/dashboard" }
+					name: "Eventos",
+					query: { redirect: "/events" }
 				});
 			}
 		}

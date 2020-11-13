@@ -1,5 +1,5 @@
 <template>
-	<div class="mb-5">
+	<div class="header">
 		<b-navbar
 			v-if="authenticated"
 			toggleable="sm"
@@ -7,7 +7,7 @@
 			variant="info"
 			id="nav"
 		>
-			<b-navbar-brand to="/dashboard">
+			<b-navbar-brand to="/events">
 				<img
 					src="../assets/logo.png"
 					alt="Logo"
@@ -21,31 +21,23 @@
 				id="nav-collapse"
 				is-nav
 			>
-				<b-navbar-nav>
-					<b-nav-item
-						to="/dashboard"
-						:active="$route.path == '/dashboard'"
-					>Home</b-nav-item>
-					<b-nav-item
-						to="/games"
-						:active="$route.path.startsWith('/games')"
-					>Jogos</b-nav-item>
-				</b-navbar-nav>
+
+				<CalendarHeader/>
 
 				<!-- Right aligned nav items -->
-				<b-navbar-nav class="ml-auto">
+				<b-navbar-nav>
 
-					<b-nav-text v-if="authenticated">Olá,</b-nav-text>
+					<b-nav-text v-if="authenticated" class="text-white">Olá,</b-nav-text>
 					<b-nav-item-dropdown
 						v-if="authenticated"
 						right
 					>
 						<!-- Using 'button-content' slot -->
 						<template v-slot:button-content>
-							<em>{{ userInfo.Name }}</em>
+							<em class="font-weight-bold text-white">{{ userInfo.Name }}</em>
 						</template>
 						<!-- <b-dropdown-item-button href="#">Profile</b-dropdown-item-button> -->
-						<b-dropdown-item-button @click="signOut">Sign Out</b-dropdown-item-button>
+						<b-dropdown-item-button @click="signOut">Sair</b-dropdown-item-button>
 					</b-nav-item-dropdown>
 					<b-nav-item
 						to="/login"
@@ -80,23 +72,7 @@
 					<b-nav-item
 						to="/"
 						:active="$route.path == '/'"
-					>Início</b-nav-item>
-					<b-nav-item
-						to="/desktop"
-						:active="$route.path == '/desktop'"
-					>LepiDesktop</b-nav-item>
-					<b-nav-item
-						to="/board"
-						:active="$route.path == '/board'"
-					>LepiBoard</b-nav-item>
-					<b-nav-item
-						to="/team"
-						:active="$route.path == '/team'"
-					>Equipe</b-nav-item>
-					<b-nav-item
-						to="/publications"
-						:active="$route.path == '/publications'"
-					>Pulicacoes</b-nav-item>
+					>Sobre</b-nav-item>
 				</b-navbar-nav>
 
 				<!-- Right aligned nav items -->
@@ -113,8 +89,12 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
+import CalendarHeader from '@/components/CalendarHeader.vue';
 
 export default {
+	components: {
+		CalendarHeader,
+	},
 	computed: {
 		...mapState(["token", "authenticated"]),
 		...mapGetters(["userInfo"]),
@@ -122,14 +102,13 @@ export default {
 	methods: {
 		...mapActions(["logout"]),
 		signOut() {
-			// this.$cookies.remove("token", "", "localhost");
-			this.$cookies.remove("token", "/lepi", "lifes.dc.ufscar.br")
-			this.logout()
+			this.$cookies.remove("token", "", "localhost");
+			this.logout();
 			this.$router.push({
-				name: "PublicHome",
-				query: { redirect: "/" }
+				name: "Inicio",
+				query: { redirect: "/" },
 			});
-		}
-	}
+		},
+	},
 };
 </script>

@@ -25,8 +25,4 @@ func SetEnv() {
 	if err != nil {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
-
-	fmt.Println("User is\t", Env.Database.User)
-	fmt.Println("User is\t", Env.Database.Password)
-	fmt.Println("Port is\t\t", Env.Server.Port)
 }

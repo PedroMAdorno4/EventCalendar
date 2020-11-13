@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import SignUpIn from '../views/SignUpIn.vue'
 import About from '../views/About.vue'
+import Events from '../views/Events.vue';
 import PublicHome from '../views/PublicHome.vue'
 
 import store from '../store/index.js'
@@ -10,18 +11,23 @@ Vue.use(VueRouter)
 
 const routes = [{
     path: '/',
-    name: 'PublicHome',
+    name: 'Inicio',
     component: PublicHome
   },
   {
     path: '/login',
-    name: 'SignUpIn',
+    name: 'Entrar',
     component: SignUpIn
   },
   {
     path: '/about',
-    name: 'About',
+    name: 'Sobre',
     component: About
+  },
+  {
+    path: '/events',
+    name: 'Eventos',
+    component: Events
   }
 ]
 

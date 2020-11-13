@@ -45,6 +45,7 @@ func (s *service) CreateToken(id primitive.ObjectID) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	//TODO: add toke password to env file
 	tokenString, _ := token.SignedString([]byte("tokenPassword"))
 
 	return tokenString, nil

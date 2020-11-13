@@ -1,4 +1,7 @@
 export default {
     token: '',
-    authenticated: false
+    authenticated: false,
+    currentDate: new Date(),
+    events: [],
+    currentEvent: {}
 }

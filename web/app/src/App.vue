@@ -2,18 +2,15 @@
   <div id="app">
     <Header/>
     <router-view />
-    <Footer/>
   </div>
 </template>
 
 <script>
 import Header from '@/components/Header.vue'
-import Footer from '@/components/Footer.vue';
 
 export default {
   components: {
     Header,
-    Footer
   }
 }
 </script>
@@ -25,6 +22,24 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.box .header {
+  flex: 0 1 auto;
+}
+
+.box .content {
+  height: 1%;
+  flex: 1 1 auto;
 }
 
 #nav {
