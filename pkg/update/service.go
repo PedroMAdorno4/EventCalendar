@@ -4,9 +4,9 @@ import (
 	"errors"
 )
 
-var ErrUserNotFound = errors.New("User was not found")
-var ErrUserDuplicate = errors.New("Username already exists")
-var ErrEventNotFound = errors.New("Event was not found")
+var ErrUserNotFound = errors.New("Erro: Usuário não encontrado")
+var ErrUserDuplicate = errors.New("Erro: Nome de usuário já existe")
+var ErrEventNotFound = errors.New("Error: Evento não encontrado")
 
 type Service interface {
 	UpdateUser(User) error

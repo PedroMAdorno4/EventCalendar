@@ -171,18 +171,6 @@ func createUser(s create.Service) func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusNotAcceptable)
 			return
 		}
-		/*var userGroup create.Group
-
-		userGroup.OwnerID = insertedID
-
-		switch userInfo.Permissions {
-		case auth.PermPlayer:
-			userGroup.Depth = 2
-		case auth.PermManager:
-			userGroup.Depth = 1
-		}
-
-		s.CreateGroup(userGroup)*/
 
 		json.NewEncoder(w).Encode("Usuario " + userInfo.Username + "(" + insertedID.Hex() + ")" + " inserido com sucesso")
 	}
@@ -279,13 +267,13 @@ func createEvent(s create.Service) func(w http.ResponseWriter, r *http.Request) 
 		}
 
 		eventInfo.OwnerID = id
-		insId, err := s.CreateEvent(eventInfo)
+		insID, err := s.CreateEvent(eventInfo)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		json.NewEncoder(w).Encode(insId)
+		json.NewEncoder(w).Encode(insID)
 	}
 }
 

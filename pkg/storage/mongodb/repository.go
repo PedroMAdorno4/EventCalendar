@@ -108,11 +108,22 @@ func (st *Storage) CreateUser(u create.User) (primitive.ObjectID, error) {
 func (st *Storage) CreateEvent(e create.Event) (primitive.ObjectID, error) {
 	coll := st.db.Collection(collEvents)
 
-	result, err := coll.InsertOne(ctx, e)
+	var result create.Event
+	err := coll.FindOne(ctx, bson.M{"start": e.StartDate, "end": e.EndDate}).Decode(&result)
+
 	if err != nil {
-		return primitive.NilObjectID, create.ErrEventOverlap
+		if err == mongo.ErrNoDocuments {
+			resIns, err := coll.InsertOne(ctx, e)
+			if err != nil {
+				return primitive.NilObjectID, err
+			}
+			return resIns.InsertedID.(primitive.ObjectID), err
+		}
+
+		return primitive.NilObjectID, err
 	}
-	return result.InsertedID.(primitive.ObjectID), err
+
+	return primitive.NilObjectID, create.ErrEventOverlap
 }
 
 //For delete service

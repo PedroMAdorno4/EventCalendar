@@ -6,8 +6,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var ErrUserDuplicate = errors.New("Username already exists")
-var ErrEventOverlap = errors.New("Events are overlapping")
+var ErrUserDuplicate = errors.New("Erro: Nome de usuário já existe")
+var ErrEventOverlap = errors.New("Erro: Evento está sobrescrevendo um já existente")
 
 type Service interface {
 	CreateUser(User) (primitive.ObjectID, error)

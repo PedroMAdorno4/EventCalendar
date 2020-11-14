@@ -1,11 +1,13 @@
 <template>
-	<div class="list pr-1">
-		<EventCard
-			v-for="i in dayEvents"
-			:key="i.start"
-			:event="i"
-		/>
-	</div>
+	<transition-group name="eventListTransition" class="list">
+		<!-- <div class="list"> -->
+			<EventCard
+				v-for="i in dayEvents"
+				:key="i.start + i.end"
+				:event="i"
+			/>
+		<!-- </div> -->
+	</transition-group>
 </template>
 
 <script>
@@ -63,6 +65,9 @@ export default {
 					events.push(event);
 				}
 			});
+
+			//sort is stable, sort from least important to most important
+			events.sort((a, b) => (a.end - b.end)).sort((a, b) => (a.start - b.start));
 			return events;
 		},
 	},
@@ -71,6 +76,27 @@ export default {
 
 <style lang="scss" scoped>
 .list {
-	overflow-y: auto;
+	overflow-y: hidden;
+	overflow-x: hidden;
+
+	//Space for scrollbar
+	padding-right: 0.75rem;
+
+	&:hover {
+		overflow-y: visible;
+		overflow-x: hidden;
+		scrollbar-width: thin;
+
+		// padding-right: thin;
+	}
+}
+
+.eventListTransition-enter-active,
+.eventListTransition-leave-active {
+	transition: all 1s;
+}
+.eventListTransition-enter, .eventListTransition-leave-to {
+	opacity: 0;
+	transform: translateY(30px);
 }
 </style>

@@ -9,13 +9,13 @@ import (
 )
 
 var (
-	ErrTokenMissing       = errors.New("Missing auth token")
-	ErrTokenMalformed     = errors.New("Malformed auth token")
-	ErrTokenInvalid       = errors.New("Invalid auth token")
-	ErrUserNotFound       = errors.New("User was not found")
-	ErrUserUnauthorized   = errors.New("User does not have permission")
-	ErrCredentialsInvalid = errors.New("Credentials invalid")
-	ErrCredentialsMissing = errors.New("Credentials not present")
+	ErrTokenMissing       = errors.New("Erro: Missing auth token")
+	ErrTokenMalformed     = errors.New("Erro: Malformed auth token")
+	ErrTokenInvalid       = errors.New("Erro: Invalid auth token")
+	ErrUserNotFound       = errors.New("Erro: User was not found")
+	ErrUserUnauthorized   = errors.New("Erro: User does not have permission")
+	ErrCredentialsInvalid = errors.New("Erro: Credentials invalid")
+	ErrCredentialsMissing = errors.New("Erro: Credentials not present")
 )
 
 type Service interface {

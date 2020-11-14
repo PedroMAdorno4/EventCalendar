@@ -19,6 +19,9 @@ export default {
 	addEvent: ({ commit }, event) => {
 		commit('addEvent', event)
 	},
+	updateEvent: ({ commit }, event) => {
+		commit('updateEvent', event)
+	},
 	removeEvent: ({ commit }, id) => {
 		commit('removeEvent', id)
 	},

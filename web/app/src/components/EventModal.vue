@@ -69,6 +69,7 @@
 						:state="validateState('start')"
 						placeholder="Nenhum horário escolhido"
 						locale="pt-BR"
+						minutes-step="5"
 						required
 					></b-form-timepicker>
 					<b-form-invalid-feedback id="start-live-feedback">Campo obrigatório.</b-form-invalid-feedback>
@@ -85,6 +86,7 @@
 						:state="validateState('end')"
 						placeholder="Nenhum horário escolhido"
 						locale="pt-BR"
+						minutes-step="5"
 						required
 					></b-form-timepicker>
 					<b-form-invalid-feedback id="end-live-feedback">Campo obrigatório.</b-form-invalid-feedback>
@@ -97,35 +99,52 @@
 					v-if="Object.keys(currentEvent).length > 0"
 					class="w-100"
 				>
-					<b-button
-						variant="danger"
-						size="sm"
-						@click="deleteEvent"
+					<b-overlay
+						:show="submitStatus === 1"
+						rounded
+						opacity="0.6"
+						spinner-small
+						spinner-variant="secondary"
 					>
-						Excluir
-					</b-button>
-					<b-button
-						variant="primary"
-						size="sm"
-						class="float-right"
-						@click="handleUpdate"
-					>
-						Atualizar
-					</b-button>
+						<b-button
+							variant="danger"
+							size="sm"
+							@click="deleteEvent"
+						>
+							Excluir
+						</b-button>
+
+						<b-button
+							variant="primary"
+							size="sm"
+							class="float-right"
+							@click="handleUpdate"
+						>
+							Atualizar
+						</b-button>
+					</b-overlay>
 				</div>
 
 				<div
 					v-else
 					class="w-100"
 				>
-					<b-button
-						variant="primary"
-						size="sm"
-						class="float-right"
-						@click="handleCreate"
+					<b-overlay
+						:show="submitStatus === 1"
+						rounded
+						opacity="0.6"
+						spinner-small
+						spinner-variant="secondary"
 					>
-						Criar
-					</b-button>
+						<b-button
+							variant="primary"
+							size="sm"
+							class="float-right"
+							@click="handleCreate"
+						>
+							Criar
+						</b-button>
+					</b-overlay>
 				</div>
 			</template>
 
@@ -170,30 +189,61 @@ export default {
 		},
 	},
 	methods: {
-		...mapActions(["addEvent", "removeEvent"]),
+		...mapActions(["addEvent", "updateEvent", "removeEvent"]),
 		validateState(name) {
 			const { $dirty, $error } = this.$v.form[name];
 			return $dirty ? !$error : null;
+		},
+		makeToast(title, message, type) {
+			this.$bvToast.toast(message, {
+				title: title,
+				autoHideDelay: 5000,
+				toaster: "b-toaster-bottom-right",
+				variant: type,
+				appendToast: false
+			})
 		},
 		submitEvent() {
 			this.$v.$touch();
 			if (!this.$v.form.$anyError) {
 				this.submitStatus = 1;
 
-				var splitStart = this.form.start.split(':')
-				var paddedStart = `${splitStart[0].toString().padStart(2, '0')}:${splitStart[1].toString().padStart(2, '0')}:${splitStart[2].toString().padStart(2, '0')}`;
-				var newStart = `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
+				var splitStart = this.form.start.split(":");
+				var paddedStart = `${splitStart[0]
 					.toString()
-					.padStart(2, "0")}-${this.currentDate
+					.padStart(2, "0")}:${splitStart[1]
+					.toString()
+					.padStart(2, "0")}:${splitStart[2]
+					.toString()
+					.padStart(2, "0")}`;
+				var newStart = `${this.currentDate.getFullYear()}-${(
+					this.currentDate.getMonth() + 1
+				)
+					.toString()
+					.padStart(
+						2,
+						"0"
+					)}-${this.currentDate
 					.getDate()
 					.toString()
 					.padStart(2, "0")}T${paddedStart}`;
 
-				var splitEnd = this.form.end.split(':')
-				var paddedEnd = `${splitEnd[0].toString().padStart(2, '0')}:${splitEnd[1].toString().padStart(2, '0')}:${splitEnd[2].toString().padStart(2, '0')}`;
-				var newEnd = `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
+				var splitEnd = this.form.end.split(":");
+				var paddedEnd = `${splitEnd[0]
 					.toString()
-					.padStart(2, "0")}-${this.currentDate
+					.padStart(2, "0")}:${splitEnd[1]
+					.toString()
+					.padStart(2, "0")}:${splitEnd[2]
+					.toString()
+					.padStart(2, "0")}`;
+				var newEnd = `${this.currentDate.getFullYear()}-${(
+					this.currentDate.getMonth() + 1
+				)
+					.toString()
+					.padStart(
+						2,
+						"0"
+					)}-${this.currentDate
 					.getDate()
 					.toString()
 					.padStart(2, "0")}T${paddedEnd}`;
@@ -214,21 +264,17 @@ export default {
 					},
 					body: JSON.stringify(payload),
 				})
-					.then((response) => {
-						if (response.status === 200) {
-							return response.json();
-						} else {
-							return "Erro criando evento.";
-						}
-					})
-					.then((response) => {
-						if (response === "Erro criando evento.") {
-							console.log(response);
-						} else {
-							payload["_id"] = response;
-							this.addEvent(payload);
-						}
-					});
+				.then((response) => response.text())
+				.then((response) => {
+					if (response.startsWith("Erro")) {
+						this.makeToast("Erro criando evento!", response, "danger");
+					} else {
+						payload["_id"] = response;
+						this.addEvent(payload);
+					}
+				});
+
+				this.submitStatus = 0;
 
 				// Hide the modal manually
 				this.$nextTick(() => {
@@ -271,7 +317,7 @@ export default {
 			// Prevent modal from closing
 			bvModalEvt.preventDefault();
 			// Trigger submit handler
-			this.updateEvent();
+			this.submitUpdate();
 		},
 		deleteEvent() {
 			// this.submitStatus = 1;
@@ -284,45 +330,63 @@ export default {
 					_id: JSON.stringify(this.currentEvent._id),
 				},
 			})
+				.then((response) => response.text())
 				.then((response) => {
-					if (response.status === 200) {
-						return response.json();
-					} else {
-						return "Erro deletando evento.";
-					}
-				})
-				.then((response) => {
-					if (response === "Erro deletando evento.") {
-						console.log(response);
+					if (response.startsWith("Erro")) {
+						this.makeToast("Erro deletando evento!", response, "danger");
 					} else {
 						this.removeEvent(this.currentEvent._id);
 					}
 				});
+
+				this.submitStatus = 0;
 
 			// Hide the modal manually
 			this.$nextTick(() => {
 				this.$bvModal.hide("event-modal");
 			});
 		},
-		updateEvent() {
+		submitUpdate() {
 			this.$v.$touch();
 			if (!this.$v.form.$anyError) {
 				this.submitStatus = 1;
 
-				var splitStart = this.form.start.split(':')
-				var paddedStart = `${splitStart[0].toString().padStart(2, '0')}:${splitStart[1].toString().padStart(2, '0')}:${splitStart[2].toString().padStart(2, '0')}`;
-				var newStart = `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
+				var splitStart = this.form.start.split(":");
+				var paddedStart = `${splitStart[0]
 					.toString()
-					.padStart(2, "0")}-${this.currentDate
+					.padStart(2, "0")}:${splitStart[1]
+					.toString()
+					.padStart(2, "0")}:${splitStart[2]
+					.toString()
+					.padStart(2, "0")}`;
+				var newStart = `${this.currentDate.getFullYear()}-${(
+					this.currentDate.getMonth() + 1
+				)
+					.toString()
+					.padStart(
+						2,
+						"0"
+					)}-${this.currentDate
 					.getDate()
 					.toString()
 					.padStart(2, "0")}T${paddedStart}`;
 
-				var splitEnd = this.form.end.split(':')
-				var paddedEnd = `${splitEnd[0].toString().padStart(2, '0')}:${splitEnd[1].toString().padStart(2, '0')}:${splitEnd[2].toString().padStart(2, '0')}`;
-				var newEnd = `${this.currentDate.getFullYear()}-${(this.currentDate.getMonth() + 1)
+				var splitEnd = this.form.end.split(":");
+				var paddedEnd = `${splitEnd[0]
 					.toString()
-					.padStart(2, "0")}-${this.currentDate
+					.padStart(2, "0")}:${splitEnd[1]
+					.toString()
+					.padStart(2, "0")}:${splitEnd[2]
+					.toString()
+					.padStart(2, "0")}`;
+				var newEnd = `${this.currentDate.getFullYear()}-${(
+					this.currentDate.getMonth() + 1
+				)
+					.toString()
+					.padStart(
+						2,
+						"0"
+					)}-${this.currentDate
 					.getDate()
 					.toString()
 					.padStart(2, "0")}T${paddedEnd}`;
@@ -344,20 +408,16 @@ export default {
 					},
 					body: JSON.stringify(payload),
 				})
-					.then((response) => {
-						if (response.status === 200) {
-							return response.json();
-						} else {
-							return "Erro atualizando evento.";
-						}
-					})
-					.then((response) => {
-						if (response === "Erro atualizando evento.") {
-							console.log(response);
-						} else {
-							console.log(response);
+				.then((response) => response.text())
+				.then((response) => {
+					if (response.startsWith("Erro")) {
+						this.makeToast("Erro atualizando evento!", response, "danger");
+					} else {
+							this.updateEvent(payload);
 						}
 					});
+
+					this.submitStatus = 0;
 
 				// Hide the modal manually
 				this.$nextTick(() => {

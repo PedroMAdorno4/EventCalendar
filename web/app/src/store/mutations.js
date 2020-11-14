@@ -24,6 +24,13 @@ export default {
             state.events.push(event);
         }
     },
+    updateEvent: (state, event) => {
+        if (event !== null) {
+            var index = state.events.findIndex(x => x._id === event._id);
+            state.events.splice(index, 1);
+            state.events.push(event);
+        }
+    },
     removeEvent: (state, id) => {
         if (id !== null && id !== "") {   
             state.events = state.events.filter(e => e._id !== id);

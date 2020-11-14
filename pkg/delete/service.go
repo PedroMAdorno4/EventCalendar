@@ -6,8 +6,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var ErrUserNotFound = errors.New("User was not found")
-var ErrEventNotFound = errors.New("Event was not found")
+var ErrUserNotFound = errors.New("Error: Usuário não encontrado")
+var ErrEventNotFound = errors.New("Error: Evento não encontrado")
 
 type Service interface {
 	DeleteUser(primitive.ObjectID) error

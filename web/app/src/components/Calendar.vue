@@ -1,29 +1,36 @@
 <template>
-	<div class="h-100 w-100">
+	<div class="h-100 w-100" style="overflow: hidden;">
 		<EventModal />
-		<b-table
-			class="h-100 mb-0 border-2"
-			bordered
-			outlined
-			fixed
-			block
-			:fields="daysOfTheWeek"
-			:items="days"
-			tbody-class="events"
-			thead-class="thead"
-		>
-			<template #cell()="data">
-				<b-button
-					:class="dayLabelClass(parseInt(data.value))"
-					size="sm"
-					:variant="dayLabelVariant(data.value)"
-					@click="setCurrentDay(parseInt(data.value))"
-				>
-					{{data.value}}
-				</b-button>
-				<EventList :day="parseInt(data.value)" class="h-100"/>
-			</template>
-		</b-table>
+		<transition name="calendarTransition" style="overflow: hidden;">
+			<b-table
+				class="h-100 mb-0 border-2"
+				bordered
+				outlined
+				fixed
+				block
+				:key="`${currentDate.getMonth()}-${currentDate.getFullYear()}`"
+				:fields="daysOfTheWeek"
+				:items="days"
+				tbody-class="events"
+				thead-class="thead"
+			>
+				<template #cell()="data">
+					<div class="d-flex flex-column h-100">
+						<div class="w-100">
+							<b-button
+								:class="dayLabelClass(parseInt(data.value))"
+								size="sm"
+								:variant="dayLabelVariant(data.value)"
+								@click="setCurrentDay(parseInt(data.value))"
+							>
+								{{data.value}}
+							</b-button>
+						</div>
+						<EventList :day="parseInt(data.value)" />
+					</div>
+				</template>
+			</b-table>
+		</transition>
 	</div>
 </template>
 
@@ -73,7 +80,7 @@ export default {
 			}
 		},
 		dayLabelClass(day) {
-			var labelClass = "border-0 mt-n3 ";
+			var labelClass = "border-0 mb-2 ";
 			var today = new Date();
 			if (
 				today.getDate() === day &&
@@ -147,30 +154,31 @@ export default {
 </script>
 
 <style lang="scss">
-// .tbody {
-// 	display: block;
-// }
-// .thead {
-// 	height: 1%;
-// }
-// tbody tr td {
-// 	height: 1%;
-// }
+.calendarTransition-enter-active,
+.calendarTransition-enter-active {
+	transition: all 0.15s ease-in-out;
+}
+.calendarTransition-enter {
+	opacity: 0;
+	transform: translatey(1vw);
+}
+.calendarTransition-enter-to {
+	opacity: 1;
+	//   transform: translatex(100vw);
+}
+
 table {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 	border: 2px solid #dee2e6 !important;
-
-	td {
-		padding: 0;
-	}
 }
 table thead tr {
 	display: flex;
 
 	th {
 		width: 100vw;
+		padding-bottom: 0.75rem;
 	}
 }
 
@@ -191,5 +199,9 @@ table tbody {
 			overflow: hidden;
 		}
 	}
+}
+
+.table td {
+	padding: 0.75rem 0rem 0rem 0.75rem;
 }
 </style>

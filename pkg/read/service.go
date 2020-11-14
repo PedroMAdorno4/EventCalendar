@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	ErrUserNotFound  = errors.New("User was not found")
-	ErrEventNotFound = errors.New("Event was not found")
+	ErrUserNotFound  = errors.New("Erro: Usuário não encontrado")
+	ErrEventNotFound = errors.New("Erro: Evento não encontrado")
 )
 
 type Service interface {
