@@ -1,5 +1,5 @@
 <template>
-    <b-container fluid>
+    <b-container fluid class="mt-5">
         <b-row class="d-flex justify-content-around">
             <b-col cols="3">
 			<Register></Register>

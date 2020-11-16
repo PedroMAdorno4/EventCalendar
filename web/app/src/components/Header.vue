@@ -54,7 +54,7 @@
 			variant="info"
 			id="nav"
 		>
-			<b-navbar-brand to="/">
+			<b-navbar-brand to="/events">
 				<img
 					src="../assets/logo.png"
 					alt="Logo"
@@ -68,12 +68,6 @@
 				id="nav-collapse"
 				is-nav
 			>
-				<b-navbar-nav>
-					<b-nav-item
-						to="/"
-						:active="$route.path == '/'"
-					>Sobre</b-nav-item>
-				</b-navbar-nav>
 
 				<!-- Right aligned nav items -->
 				<b-navbar-nav class="ml-auto">
@@ -105,8 +99,8 @@ export default {
 			this.$cookies.remove("token", "", "localhost");
 			this.logout();
 			this.$router.push({
-				name: "Inicio",
-				query: { redirect: "/" },
+				name: "Entrar",
+				query: { redirect: "/login" },
 			});
 		},
 	},

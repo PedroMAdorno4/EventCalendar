@@ -8,6 +8,7 @@ module.exports = {
         target: 'http://localhost:4444',
         changeOrigin: true,
         secure: false,
+        logLevel: "debug",
         pathRewrite: {
           '^/backend': ''
         }
